@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "remix dev",
+    "build": "remix build",
     "start": "remix-serve build",
     "worker": "tsx scripts/worker.ts"
   },
@@ -13,6 +14,7 @@
     "@prisma/client": "^5.14.0",
     "@remix-run/node": "^2.8.1",
     "@remix-run/react": "^2.8.1",
+    "@remix-run/serve": "^2.8.1",
     "@shopify/polaris": "^12.23.0",
     "bullmq": "^5.21.4",
     "express": "^4.19.2",
