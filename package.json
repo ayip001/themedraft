@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "remix dev",
     "build": "remix build",
-    "start": "npm run build && remix-serve build",
+    "start": "remix-serve build",
     "worker": "tsx scripts/worker.ts"
   },
   "dependencies": {
@@ -24,7 +24,6 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@remix-run/dev": "^2.8.1",
     "@types/uuid": "^9.0.8",
     "prisma": "^5.14.0",
     "tsx": "^4.7.1",
