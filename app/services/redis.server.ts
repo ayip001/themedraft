@@ -6,8 +6,14 @@ declare global {
   var redisSubscriberGlobal: Redis | undefined;
 }
 
-const redisClient = global.redisClientGlobal ?? new Redis(REDIS_URL);
-const redisSubscriber = global.redisSubscriberGlobal ?? new Redis(REDIS_URL);
+const redisOptions = {
+  maxRetriesPerRequest: null,
+};
+
+const redisClient =
+  global.redisClientGlobal ?? new Redis(REDIS_URL, redisOptions);
+const redisSubscriber =
+  global.redisSubscriberGlobal ?? new Redis(REDIS_URL, redisOptions);
 
 if (process.env.NODE_ENV !== "production") {
   global.redisClientGlobal = redisClient;
