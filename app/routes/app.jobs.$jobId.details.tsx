@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useEffect } from "react";
 import {
   Badge,
   Banner,
@@ -37,6 +38,17 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
 export default function JobDetails() {
   const { job } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+
+  // Auto-refresh the page every 3 seconds if the job is not finished
+  useEffect(() => {
+    if (["PENDING", "PROCESSING", "VALIDATING", "WRITING"].includes(job.status)) {
+      const timer = setTimeout(() => {
+        navigate(".", { replace: true });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [job.status, navigate]);
 
   return (
     <Page backAction={{ content: "Dashboard", url: "/app" }}>

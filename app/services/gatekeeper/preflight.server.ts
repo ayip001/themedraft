@@ -70,17 +70,24 @@ export async function runPreflightChecks(
   }
 
   const idempotencyKey = resolveIdempotencyKey(shopId, input);
+  console.log(`[Preflight] Generated key: ${idempotencyKey}`);
+
+  // DISABLED: Checking for existing jobs based on idempotency key
+  // This was causing redirects to old failed jobs instead of creating new ones.
+  /*
   const existingJob = await prisma.generationJob.findUnique({
     where: { idempotencyKey },
   });
 
   if (existingJob) {
+    console.log(`[Preflight] Found existing job: ${existingJob.id}`);
     return {
       allowed: true,
       idempotencyKey,
       existingJobId: existingJob.id,
     };
   }
+  */
 
   return { allowed: true, idempotencyKey };
 }
