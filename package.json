@@ -1,0 +1,30 @@
+{
+  "name": "themedraft",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "remix dev",
+    "start": "remix-serve build",
+    "worker": "tsx scripts/worker.ts"
+  },
+  "dependencies": {
+    "@bull-board/api": "^6.7.0",
+    "@bull-board/express": "^6.7.0",
+    "@prisma/client": "^5.14.0",
+    "@remix-run/node": "^2.8.1",
+    "@remix-run/react": "^2.8.1",
+    "@shopify/polaris": "^12.23.0",
+    "bullmq": "^5.21.4",
+    "express": "^4.19.2",
+    "ioredis": "^5.4.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.8",
+    "prisma": "^5.14.0",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.5"
+  }
+}
