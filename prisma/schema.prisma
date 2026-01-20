@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  id        String   @id
+  plan      String   @default("FREE")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  quota     Quota?
+  usageLogs UsageLog[]
+  jobs      GenerationJob[]
+}
+
+model Quota {
+  id              String   @id @default(uuid())
+  shopId          String   @unique
+  shop            Shop     @relation(fields: [shopId], references: [id])
+
+  creditsLimit    Int      @default(5)
+  creditsUsed     Int      @default(0)
+  creditsResetAt  DateTime?
+
+  maxDailySpendUsd Float   @default(1.0)
+}
+
+model GenerationJob {
+  id             String    @id @default(uuid())
+  shopId         String
+  shop           Shop      @relation(fields: [shopId], references: [id])
+
+  idempotencyKey String    @unique
+  templateType   String
+  prompt         String
+  status         JobStatus @default(PENDING)
+
+  result         Json?
+  errorMessage   String?
+  retryCount     Int       @default(0)
+
+  createdAt      DateTime  @default(now())
+  startedAt      DateTime?
+  completedAt    DateTime?
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  VALIDATING
+  WRITING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model UsageLog {
+  id               String   @id @default(uuid())
+  jobId            String?
+  shopId           String
+  shop             Shop     @relation(fields: [shopId], references: [id])
+
+  action           String
+  status           String
+  templateType     String
+
+  model            String
+  inputTokens      Int
+  outputTokens     Int
+  estimatedCostUsd Float
+
+  createdAt        DateTime @default(now())
+}
+
+model TestedTheme {
+  id         String   @id @default(uuid())
+  themeName  String   @unique
+  version    String?
+  isVerified Boolean  @default(false)
+  notes      String?
+  testedAt   DateTime @default(now())
+}
