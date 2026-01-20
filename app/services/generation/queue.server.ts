@@ -1,8 +1,8 @@
 import { Queue } from "bullmq";
-import IORedis from "ioredis";
-import { MAX_RETRY_ATTEMPTS, REDIS_URL } from "~/lib/constants";
+import { MAX_RETRY_ATTEMPTS } from "~/lib/constants";
+import { redis } from "~/services/redis.server";
 
-const connection = new IORedis(REDIS_URL);
+const connection = redis.duplicate();
 
 export const generationQueue = new Queue("generation", {
   connection,

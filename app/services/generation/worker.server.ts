@@ -1,13 +1,13 @@
 import { Worker } from "bullmq";
-import IORedis from "ioredis";
-import { MAX_RETRY_ATTEMPTS, REDIS_URL } from "~/lib/constants";
+import { MAX_RETRY_ATTEMPTS } from "~/lib/constants";
 import { prisma } from "~/services/db.server";
 import { calculateCost } from "~/services/ai/models.server";
 import { generateTemplate } from "~/services/ai/openrouter.server";
 import { publishJobEvent } from "~/services/generation/publisher.server";
 import type { GenerationJobPayload } from "~/services/generation/queue.server";
+import { redis } from "~/services/redis.server";
 
-const connection = new IORedis(REDIS_URL);
+const connection = redis.duplicate();
 
 export const generationWorker = new Worker<GenerationJobPayload>(
   "generation",
