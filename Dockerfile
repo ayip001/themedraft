@@ -16,6 +16,6 @@ RUN npm remove @shopify/cli
 
 COPY . .
 
-RUN npm run build && ls -R build
+RUN npm run build
 
 CMD ["npm", "run", "docker-start"]
