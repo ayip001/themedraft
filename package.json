@@ -9,7 +9,7 @@
     "deploy": "shopify app deploy",
     "config:use": "shopify app config use",
     "env": "shopify app env",
-    "start": "remix-serve ./build/server/index.js",
+    "start": "npm run setup && remix-serve ./build/server/index.js",
     "railway-start": "npm run setup && env && remix-serve ./build/server/index.js",
     "docker-start": "npm run setup && env && ls -R build && remix-serve ./build/server/index.js",
     "setup": "prisma generate && prisma migrate deploy",
