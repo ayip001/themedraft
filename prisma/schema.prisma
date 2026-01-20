@@ -31,10 +31,11 @@ model Session {
 }
 
 model Shop {
-  id        String   @id // shop.myshopify.com
-  plan      String   @default("FREE") // FREE, PRO, AGENCY
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id            String   @id // shop.myshopify.com
+  plan          String   @default("FREE") // FREE, PRO, AGENCY
+  isActive      Boolean  @default(true)
+  targetThemeId String?
+  createdAt     DateTime @default(now())
 
   quota     Quota?
   usageLogs UsageLog[]
