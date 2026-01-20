@@ -2,7 +2,6 @@
 builder = "DOCKERFILE"
 
 [deploy]
-startCommand = "npm run railway-start"
 healthcheckPath = "/auth/login"
 healthcheckTimeout = 300
 restartPolicy = "ON_FAILURE"
