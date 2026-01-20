@@ -5,19 +5,16 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
-  id                  String    @id
+  id                  String   @id
   shop                String
   state               String
-  isOnline            Boolean   @default(false)
+  isOnline            Boolean  @default(false)
   scope               String?
   expires             DateTime?
   accessToken         String
@@ -25,10 +22,89 @@ model Session {
   firstName           String?
   lastName            String?
   email               String?
-  accountOwner        Boolean   @default(false)
+  accountOwner        Boolean  @default(false)
   locale              String?
-  collaborator        Boolean?  @default(false)
-  emailVerified       Boolean?  @default(false)
+  collaborator        Boolean? @default(false)
+  emailVerified       Boolean? @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
+}
+
+model Shop {
+  id        String   @id // shop.myshopify.com
+  plan      String   @default("FREE") // FREE, PRO, AGENCY
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  quota     Quota?
+  usageLogs UsageLog[]
+  jobs      GenerationJob[]
+}
+
+model Quota {
+  id              String   @id @default(uuid())
+  shopId          String   @unique
+  shop            Shop     @relation(fields: [shopId], references: [id])
+
+  creditsLimit    Int      @default(5)
+  creditsUsed     Int      @default(0)
+  creditsResetAt  DateTime?
+
+  maxDailySpendUsd Float   @default(1.0)
+}
+
+model GenerationJob {
+  id              String    @id @default(uuid())
+  shopId          String
+  shop            Shop      @relation(fields: [shopId], references: [id])
+
+  idempotencyKey  String    @unique
+  templateType    String
+  prompt          String
+  status          JobStatus @default(PENDING)
+
+  result          Json?
+  errorMessage    String?
+  retryCount      Int       @default(0)
+
+  createdAt       DateTime  @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  VALIDATING
+  WRITING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model UsageLog {
+  id               String   @id @default(uuid())
+  jobId            String?
+  shopId           String
+  shop             Shop     @relation(fields: [shopId], references: [id])
+
+  action           String
+  status           String
+  templateType     String
+
+  model            String
+  inputTokens      Int
+  outputTokens     Int
+  estimatedCostUsd Float
+
+  createdAt        DateTime @default(now())
+}
+
+model TestedTheme {
+  id         String   @id @default(uuid())
+  themeName  String   @unique
+  version    String?
+  isVerified Boolean  @default(false)
+  notes      String?
+  testedAt   DateTime @default(now())
 }
