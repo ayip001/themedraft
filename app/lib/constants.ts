@@ -17,8 +17,8 @@ export const ADMIN_SECRET = requireEnv("ADMIN_SECRET");
 
 export const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY ?? "";
 export const OPENROUTER_DEFAULT_MODEL =
-  process.env.OPENROUTER_DEFAULT_MODEL ??
-  "google/gemini-2.0-flash-exp:free";
+  process.env.OPENROUTER_DEFAULT_MODEL ||
+  "google/gemini-2.0-flash-001";
 
 export const DAILY_SPEND_CAP_USD = parseNumber(
   process.env.DAILY_SPEND_CAP_USD ?? "5.0",

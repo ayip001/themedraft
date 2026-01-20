@@ -1,5 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 import {
   Badge,
   BlockStack,
@@ -39,11 +41,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Dashboard() {
   const { jobs } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
 
   const rows = jobs.map((job) => [
-    <Button key={job.id} variant="plain" url={`/app/jobs/${job.id}/details`}>
+    <Link 
+      key={job.id} 
+      to={`/app/jobs/${job.id}/details`}
+      className="Polaris-Link"
+    >
       {job.templateType}
-    </Button>,
+    </Link>,
     <Badge key={job.id} tone={statusToneMap[job.status]}>
       {job.status}
     </Badge>,

@@ -66,17 +66,21 @@ export function startGenerationWorker() {
 
         console.log("[Worker] AI Response Content:", result.content);
         const parsedResult = JSON.parse(result.content);
-        console.log("[Worker] Response parsed successfully.");
-        const modelId = result.model as ModelId;
+        console.log("[Worker] Response parsed successfully:", JSON.stringify(parsedResult).substring(0, 100));
+        
+        const modelId = result.model;
         const cost = calculateCost(
           modelId,
-          result.usage.inputTokens,
-          result.usage.outputTokens,
+          result.usage?.inputTokens ?? 0,
+          result.usage?.outputTokens ?? 0,
         );
 
+        console.log(`[Worker] Ensuring quota for shop ${shopId}...`);
         await ensureQuota(shopId);
 
+        console.log("[Worker] Starting database transaction...");
         await prisma.$transaction(async (tx) => {
+          console.log("[Worker] Updating generationJob to COMPLETED...");
           await tx.generationJob.update({
             where: { id: jobId },
             data: {
@@ -87,6 +91,7 @@ export function startGenerationWorker() {
             },
           });
 
+          console.log("[Worker] Creating usageLog...");
           await tx.usageLog.create({
             data: {
               jobId,
@@ -101,11 +106,13 @@ export function startGenerationWorker() {
             },
           });
 
+          console.log("[Worker] Incrementing shop credits used...");
           await tx.quota.update({
             where: { shopId },
             data: { creditsUsed: { increment: 1 } },
           });
         });
+        console.log("[Worker] Transaction committed successfully.");
 
         await publishJobUpdate(jobId, {
           status: "completed",
@@ -113,6 +120,7 @@ export function startGenerationWorker() {
           result: parsedResult,
         });
       } catch (error) {
+        console.error(`[Worker] Job ${jobId} failed:`, error);
         const message =
           error instanceof Error ? error.message : "Unknown error";
         const retryCount = job.attemptsMade + 1;
