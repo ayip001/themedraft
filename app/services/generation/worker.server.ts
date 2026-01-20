@@ -1,5 +1,6 @@
 import { Job, Worker } from "bullmq";
-import { JobStatus } from "@prisma/client";
+import pkg from "@prisma/client";
+const { JobStatus } = pkg;
 import {
   MAX_RETRY_ATTEMPTS,
   OPENROUTER_DEFAULT_MODEL,

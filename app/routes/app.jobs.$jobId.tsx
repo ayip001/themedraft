@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { JobStatus } from "@prisma/client";
+import pkg from "@prisma/client";
+const { JobStatus } = pkg;
 import { redisSubscriber } from "~/services/redis.server";
 import prisma from "~/services/db.server";
 import { publishJobUpdate } from "~/services/generation/publisher.server";
