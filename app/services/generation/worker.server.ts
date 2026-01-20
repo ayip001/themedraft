@@ -33,13 +33,16 @@ async function updateStatus(
 }
 
 export function startGenerationWorker() {
+  console.log("Starting generation worker...");
   if (workerInstance) {
+    console.log("Worker instance already exists.");
     return workerInstance;
   }
 
   workerInstance = new Worker<GenerationJobPayload>(
     "generation",
     async (job: Job<GenerationJobPayload>) => {
+      console.log(`Processing job ${job.id} for shop ${job.data.shopId}`);
       const { jobId, shopId, templateType, prompt } = job.data;
 
       try {
@@ -52,18 +55,18 @@ export function startGenerationWorker() {
           message: "Starting generation",
         });
 
+        console.log(`[Worker] Calling OpenRouter with model ${OPENROUTER_DEFAULT_MODEL}...`);
         const result = await generateTemplate(prompt, OPENROUTER_DEFAULT_MODEL);
+        console.log("[Worker] OpenRouter response received.");
+        
         await updateStatus(jobId, JobStatus.VALIDATING, {
           status: "validating",
-          message: "Validating JSON",
+          message: "Validating AI response",
         });
 
-        await updateStatus(jobId, JobStatus.WRITING, {
-          status: "writing",
-          message: "Writing template",
-        });
-
+        console.log("[Worker] AI Response Content:", result.content);
         const parsedResult = JSON.parse(result.content);
+        console.log("[Worker] Response parsed successfully.");
         const modelId = result.model as ModelId;
         const cost = calculateCost(
           modelId,

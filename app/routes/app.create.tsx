@@ -156,17 +156,19 @@ export default function CreatePage() {
 
     setError(null);
     if ("jobId" in fetcher.data) {
-      setJobId(fetcher.data.jobId);
-      if (fetcher.data.existingJob) {
-        setMessage("Resuming existing job.");
-      }
+      const newJobId = fetcher.data.jobId;
+      setJobId(newJobId);
+      // Immediately redirect to the details page once we have a jobId
+      // This is the "lazy" way to ensure they see the summary page
+      window.location.href = `/app/jobs/${newJobId}/details`;
+      return;
     }
   }, [fetcher.data]);
 
   useEffect(() => {
     if (!jobId) return;
 
-    const source = new EventSource(`/app/jobs/${jobId}`);
+    const source = new EventSource(`/app/jobs/${jobId}/stream`);
     eventSourceRef.current = source;
 
     source.onmessage = (event) => {
@@ -194,7 +196,15 @@ export default function CreatePage() {
     };
 
     source.onerror = () => {
-      setError("Connection lost. Please refresh and try again.");
+      // If we already have a status, it means the stream was active but got interrupted.
+      // We check if the job actually finished in the background before showing an error.
+      if (status && ["completed", "failed", "cancelled"].includes(status.toLowerCase())) {
+        source.close();
+        return;
+      }
+      
+      // Don't show "Connection lost" immediately; it might just be a brief flicker or a clean close
+      console.log("SSE Connection closed or errored. Current status:", status);
       source.close();
     };
 

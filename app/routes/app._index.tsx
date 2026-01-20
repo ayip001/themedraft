@@ -31,7 +31,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const jobs = await prisma.generationJob.findMany({
     where: { shopId: session.shop },
     orderBy: { createdAt: "desc" },
-    take: 10,
+    take: 20,
   });
 
   return { jobs };
@@ -41,7 +41,9 @@ export default function Dashboard() {
   const { jobs } = useLoaderData<typeof loader>();
 
   const rows = jobs.map((job) => [
-    job.templateType,
+    <Button key={job.id} variant="plain" url={`/app/jobs/${job.id}/details`}>
+      {job.templateType}
+    </Button>,
     <Badge key={job.id} tone={statusToneMap[job.status]}>
       {job.status}
     </Badge>,

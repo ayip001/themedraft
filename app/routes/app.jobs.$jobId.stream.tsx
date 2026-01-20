@@ -21,8 +21,13 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   const stream = new ReadableStream({
     async start(controller) {
+      console.log(`Starting SSE stream for job ${jobId}`);
       const encoder = new TextEncoder();
       const subscriber = redisSubscriber.duplicate();
+
+      subscriber.on("error", (err) => {
+        console.error(`Redis subscriber error for job ${jobId}:`, err);
+      });
 
       const sendEvent = (payload: unknown) => {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`));

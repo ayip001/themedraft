@@ -15,6 +15,14 @@ const redisClient =
 const redisSubscriber =
   global.redisSubscriberGlobal ?? new Redis(REDIS_URL, redisOptions);
 
+redisClient.on("connect", () => console.log("Redis Client connected"));
+redisClient.on("error", (err) => console.error("Redis Client error:", err));
+
+redisSubscriber.on("connect", () => console.log("Redis Subscriber connected"));
+redisSubscriber.on("error", (err) =>
+  console.error("Redis Subscriber error:", err),
+);
+
 if (process.env.NODE_ENV !== "production") {
   global.redisClientGlobal = redisClient;
   global.redisSubscriberGlobal = redisSubscriber;
