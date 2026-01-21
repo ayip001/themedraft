@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,10 +8,10 @@ datasource db {
 }
 
 model Session {
-  id                  String   @id
+  id                  String    @id
   shop                String
   state               String
-  isOnline            Boolean  @default(false)
+  isOnline            Boolean   @default(false)
   scope               String?
   expires             DateTime?
   accessToken         String
@@ -22,55 +19,73 @@ model Session {
   firstName           String?
   lastName            String?
   email               String?
-  accountOwner        Boolean  @default(false)
+  accountOwner        Boolean   @default(false)
   locale              String?
-  collaborator        Boolean? @default(false)
-  emailVerified       Boolean? @default(false)
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
 }
 
 model Shop {
-  id            String   @id // shop.myshopify.com
-  plan          String   @default("FREE") // FREE, PRO, AGENCY
-  isActive      Boolean  @default(true)
+  id            String          @id
+  plan          String          @default("FREE")
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
   targetThemeId String?
-  createdAt     DateTime @default(now())
-
-  quota     Quota?
-  usageLogs UsageLog[]
-  jobs      GenerationJob[]
+  jobs          GenerationJob[]
+  quota         Quota?
+  usageLogs     UsageLog[]
 }
 
 model Quota {
-  id              String   @id @default(uuid())
-  shopId          String   @unique
-  shop            Shop     @relation(fields: [shopId], references: [id])
-
-  creditsLimit    Int      @default(5)
-  creditsUsed     Int      @default(0)
-  creditsResetAt  DateTime?
-
-  maxDailySpendUsd Float   @default(1.0)
+  id               String    @id @default(uuid())
+  shopId           String    @unique
+  creditsLimit     Int       @default(5)
+  creditsUsed      Int       @default(0)
+  creditsResetAt   DateTime?
+  maxDailySpendUsd Float     @default(1.0)
+  shop             Shop      @relation(fields: [shopId], references: [id])
 }
 
 model GenerationJob {
-  id              String    @id @default(uuid())
-  shopId          String
-  shop            Shop      @relation(fields: [shopId], references: [id])
+  id             String    @id @default(uuid())
+  shopId         String
+  idempotencyKey String    @unique
+  templateType   String
+  prompt         String
+  status         JobStatus @default(PENDING)
+  result         Json?
+  errorMessage   String?
+  retryCount     Int       @default(0)
+  createdAt      DateTime  @default(now())
+  startedAt      DateTime?
+  completedAt    DateTime?
+  shop           Shop      @relation(fields: [shopId], references: [id])
+}
 
-  idempotencyKey  String    @unique
-  templateType    String
-  prompt          String
-  status          JobStatus @default(PENDING)
+model UsageLog {
+  id               String   @id @default(uuid())
+  jobId            String?
+  shopId           String
+  action           String
+  status           String
+  templateType     String
+  model            String
+  inputTokens      Int
+  outputTokens     Int
+  estimatedCostUsd Float
+  createdAt        DateTime @default(now())
+  shop             Shop     @relation(fields: [shopId], references: [id])
+}
 
-  result          Json?
-  errorMessage    String?
-  retryCount      Int       @default(0)
-
-  createdAt       DateTime  @default(now())
-  startedAt       DateTime?
-  completedAt     DateTime?
+model TestedTheme {
+  id         String   @id @default(uuid())
+  themeName  String   @unique
+  version    String?
+  isVerified Boolean  @default(false)
+  notes      String?
+  testedAt   DateTime @default(now())
 }
 
 enum JobStatus {
@@ -81,31 +96,4 @@ enum JobStatus {
   COMPLETED
   FAILED
   CANCELLED
-}
-
-model UsageLog {
-  id               String   @id @default(uuid())
-  jobId            String?
-  shopId           String
-  shop             Shop     @relation(fields: [shopId], references: [id])
-
-  action           String
-  status           String
-  templateType     String
-
-  model            String
-  inputTokens      Int
-  outputTokens     Int
-  estimatedCostUsd Float
-
-  createdAt        DateTime @default(now())
-}
-
-model TestedTheme {
-  id         String   @id @default(uuid())
-  themeName  String   @unique
-  version    String?
-  isVerified Boolean  @default(false)
-  notes      String?
-  testedAt   DateTime @default(now())
 }
